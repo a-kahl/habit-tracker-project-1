@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #0ea5e9;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #0ea5e9;
+        }
+        
+        button {
+            padding: 15px 30px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background: #0284c7;
+        }
+        
+        .chart-container {
+            background: #f0f9ff;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0c4a6e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 200px;
+            gap: 8px;
+            padding: 10px 0;
+        }
+        
+        .chart-day {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .chart-bars {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 2px;
+            height: 160px;
+            justify-content: flex-start;
+            width: 100%;
+        }
+        
+        .chart-bar {
+            width: 100%;
+            height: 20px;
+            border-radius: 4px;
+            transition: transform 0.2s;
+        }
+        
+        .chart-bar:hover {
+            transform: scaleY(1.1);
+        }
+        
+        .chart-label {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #475569;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .habits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .habit-item {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+            border-left: 4px solid;
+        }
+        
+        .habit-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .habit-info {
+            flex: 1;
+        }
+        
+        .habit-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0c4a6e;
+            margin-bottom: 5px;
+        }
+        
+        .habit-streak {
+            font-size: 14px;
+            color: #0369a1;
+            font-weight: 500;
+        }
+        
+        .habit-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .check-btn, .delete-btn {
+            background: rgba(14, 165, 233, 0.15);
+            color: #0369a1;
+            padding: 10px 20px;
+            font-size: 14px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            cursor: pointer;
+        }
+        
+        .check-btn:hover {
+            background: rgba(14, 165, 233, 0.25);
+            border-color: rgba(14, 165, 233, 0.5);
+        }
+        
+        .delete-btn:hover {
+            background: rgba(14, 165, 233, 0.25);
+            border-color: rgba(14, 165, 233, 0.5);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .empty-chart {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0c4a6e;
+            margin-bottom: 15px;
+        }
+        
+        .modal-message {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-btn-confirm {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .modal-btn-confirm:hover {
+            background: #dc2626;
+        }
+        
+        .modal-btn-cancel {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .modal-btn-cancel:hover {
+            background: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Habit Tracker</h1>
+        <p class="subtitle">Build better habits, one day at a time</p>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button onclick="window.clearAllData()" style="background: #ef4444; padding: 8px 16px; font-size: 13px;">
+                🗑️ Clear All Data & Start Fresh
+            </button>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-title">📊 14-Day Habit Consistency</div>
+            <div id="chartArea">
+                <div class="empty-chart">Add habits to see your consistency chart</div>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="habitInput" placeholder="Enter a new habit (e.g., Drink 8 glasses of water)" />
+            <button id="addBtn">Add Habit</button>
+        </div>
+        
+        <div class="habits-list" id="habitsList">
+            <div class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <p>No habits yet. Add your first habit above!</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">Confirm Action</div>
+            <div class="modal-message" id="modalMessage">Are you sure?</div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let habits = [];
+        let confirmCallback = null;
+        
+        const habitColors = [
+            '#0ea5e9',
+            '#06b6d4',
+            '#3b82f6',
+            '#6366f1',
+            '#0284c7',
+            '#0891b2',
+            '#2563eb',
+            '#4f46e5'
+        ];
+        
+        function getHabitColor(index) {
+            return habitColors[index % habitColors.length];
+        }
+        
+        function loadHabits() {
+            const saved = localStorage.getItem('habitTrackerData');
+            if (saved) {
+                try {
+                    habits = JSON.parse(saved);
+                    renderHabits();
+                    renderChart();
+                } catch (e) {
+                    console.log('No saved data found');
+                    habits = [];
+                }
+            }
+        }
+        
+        function saveHabits() {
+            localStorage.setItem('habitTrackerData', JSON.stringify(habits));
+        }
+        
+        function addHabit() {
+            const input = document.getElementById('habitInput');
+            const habitName = input.value.trim();
+            
+            if (habitName === '') {
+                showModal('Empty Habit', 'Please enter a habit name!', function() {});
+                return;
+            }
+            
+            const newHabit = {
+                id: Date.now(),
+                name: habitName,
+                streak: 0,
+                completedDates: []
+            };
+            
+            habits.push(newHabit);
+            saveHabits();
+            renderHabits();
+            renderChart();
+            input.value = '';
+        }
+        
+        function showModal(title, message, onConfirm) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            confirmCallback = onConfirm;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+        
+        function hideModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            confirmCallback = null;
+        }
+        
+        function checkHabit(id) {
+            const habit = habits.find(h => h.id === id);
+            if (!habit) return;
+            
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (habit.completedDates.includes(today)) {
+                showModal('Already Completed', 'You already checked this habit today! Come back tomorrow 🎉', function() {});
+                return;
+            }
+            
+            habit.completedDates.push(today);
+            habit.streak += 1;
+            saveHabits();
+            renderHabits();
+            renderChart();
+        }
+        
+        function getLast14Days() {
+            const days = [];
+            for (let i = 13; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                days.push({
+                    date: date.toISOString().split('T')[0],
+                    label: date.toLocaleDateString('en-US', { weekday: 'short' })
+                });
+            }
+            return days;
+        }
+        
+        function renderChart() {
+            const chartArea = document.getElementById('chartArea');
+            
+            if (habits.length === 0) {
+                chartArea.innerHTML = '<div class="empty-chart">Add habits to see your consistency chart</div>';
+                return;
+            }
+            
+            const days = getLast14Days();
+            let chartHTML = '<div class="chart">';
+            
+            days.forEach(day => {
+                const habitsCompletedToday = habits.filter(habit => 
+                    habit.completedDates && habit.completedDates.includes(day.date)
+                );
+                
+                chartHTML += '<div class="chart-day">';
+                chartHTML += '<div class="chart-bars">';
+                
+                habitsCompletedToday.forEach(habit => {
+                    const habitIndex = habits.findIndex(h => h.id === habit.id);
+                    const color = getHabitColor(habitIndex);
+                    chartHTML += '<div class="chart-bar" style="background-color: ' + color + ';" title="' + habit.name + '"></div>';
+                });
+                
+                chartHTML += '</div>';
+                chartHTML += '<div class="chart-label">' + day.label + '</div>';
+                chartHTML += '</div>';
+            });
+            
+            chartHTML += '</div>';
+            chartHTML += '<div class="legend">';
+            
+            habits.forEach(function(habit, index) {
+                const color = getHabitColor(index);
+                chartHTML += '<div class="legend-item">';
+                chartHTML += '<div class="legend-color" style="background-color: ' + color + ';"></div>';
+                chartHTML += '<span>' + habit.name + '</span>';
+                chartHTML += '</div>';
+            });
+            
+            chartHTML += '</div>';
+            chartArea.innerHTML = chartHTML;
+        }
+        
+        function renderHabits() {
+            const list = document.getElementById('habitsList');
+            
+            if (habits.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><p>No habits yet. Add your first habit above!</p></div>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            
+            habits.forEach(function(habit, index) {
+                const color = getHabitColor(index);
+                const today = new Date().toISOString().split('T')[0];
+                const completedToday = habit.completedDates && habit.completedDates.includes(today);
+                
+                // Create HTML string instead
+                const habitHTML = `
+                    <div class="habit-item" style="border-left-color: ${color};">
+                        <div class="habit-info">
+                            <div class="habit-name">${habit.name}</div>
+                            <div class="habit-streak">🔥 ${habit.streak} day streak${completedToday ? ' • ✓ Completed today' : ''}</div>
+                        </div>
+                        <div class="habit-actions">
+                            <button class="check-btn" onclick="window.checkHabitById(${habit.id})">✓ Done Today</button>
+                            <button class="delete-btn" onclick="window.deleteHabitById(${habit.id}, '${habit.name.replace(/'/g, "\\'")}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+                
+                list.innerHTML += habitHTML;
+            });
+        }
+        
+        // Make functions globally accessible
+        window.checkHabitById = function(id) {
+            checkHabit(id);
+        };
+        
+        window.deleteHabitById = function(id, name) {
+            showModal(
+                'Delete Habit',
+                'Are you sure you want to delete "' + name + '"?',
+                function() {
+                    habits = habits.filter(h => h.id !== id);
+                    saveHabits();
+                    renderHabits();
+                    renderChart();
+                    hideModal();
+                }
+            );
+        };
+        
+        window.clearAllData = function() {
+            showModal(
+                'Clear All Data',
+                'This will delete ALL your habits and start completely fresh. Are you sure?',
+                function() {
+                    localStorage.removeItem('habitTrackerData');
+                    habits = [];
+                    renderHabits();
+                    renderChart();
+                    hideModal();
+                }
+            );
+        };
+        
+        document.getElementById('modalConfirm').addEventListener('click', function() {
+            if (confirmCallback) {
+                confirmCallback();
+            } else {
+                hideModal();
+            }
+        });
+        
+        document.getElementById('modalCancel').addEventListener('click', hideModal);
+        
+        document.getElementById('addBtn').addEventListener('click', addHabit);
+        
+        document.getElementById('habitInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addHabit();
+            }
+        });
+        
+        loadHabits();
+    </script>
+</body>
+</html>
